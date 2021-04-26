@@ -56,7 +56,7 @@ def precipitation():
 
 @app.route("/api/v1.0/stations")
 def stations():
-    station_results = session.query(Station.station, Station.name).all()
+    station_results = session.query(Station.station).all()
 
     station_dict = list(np.ravel(station_results))
 
@@ -64,13 +64,12 @@ def stations():
 
 @app.route("/api/v1.0/tobs")
 def tobs():
-    tobs_results = session.query(Measurement.date, Measurement.tobs).\
+    tobs_results = session.query(Measurement.tobs,Measurement.date).\
             filter(Measurement.date>="2016-08-23").\
             filter(Measurement.date<="2017-08-23").all()
 
             
     tobs_dict = list(np.ravel(tobs_results))
-
     return jsonify(tobs_dict)
 
 @app.route("/api/v1.0/<start>")
@@ -82,14 +81,13 @@ def start_day(start):
         return jsonify(start_day_list)
 
 @app.route("/api/v1.0/<start>/<end>")
-def start_end_day(start, end):
-        start_end_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+def start_end(start, end):
+        start_end = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
                 filter(Measurement.date >= start).\
                 filter(Measurement.date <= end).\
-                group_by(Measurement.date).all()
-       
-        start_end_day_list = list(start_end_day)
-        return jsonify(start_end_day_list)
+                group_by(Measurement.date).all()       
+        start_end_list = list(start_end)
+        return jsonify(start_end_list)
 
 if __name__ == '__main__':
     app.run(debug=True)
